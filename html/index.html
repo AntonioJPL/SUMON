@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <script src="index.js"></script>
+    <title>LST SUMON</title>
+</head>
+<body>
+    <div class="mainHeader">
+        <div class="container">
+            <img class="icon" src="favicon.png" alt="Icon">
+            <p>SUMON</p>
+        </div>
+        <h2 class="title">LST Structure Monitoring</h2>
+    </div>
+    <div class="content">
+        <div class="contentHeader">
+            <p>Please select the month and year you want to visualize: </p>
+            <div class="picker">
+                <select name="month" id="month">
+                    <option value="31-01">JAN</option>
+                    <option value="29-02">FEB</option>
+                    <option value="31-03">MAR</option>
+                    <option value="30-04">APR</option>
+                    <option value="31-05">MAY</option>
+                    <option value="30-06">JUN</option>
+                    <option value="31-07">JUL</option>
+                    <option value="31-08">AUG</option>
+                    <option value="30-09">SEP</option>
+                    <option value="31-10">OCT</option>
+                    <option value="30-11">NOV</option>
+                    <option value="31-12">DEC</option>
+                </select>
+                <select name="year" id="year"></select>
+                <button id="searchBtn">Go</button>
+            </div>
+        </div>
+        <div class="month">
+            <h4>Month information</h4>
+            <div id="monthPlots">
+                <div class="loader"></div>
+            </div>
+        </div>
+        <div class="year">
+            <h4>Latest Year information</h4>
+            <div id="yearPlots">
+                <div class="loader"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

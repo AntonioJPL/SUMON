@@ -1,0 +1,81 @@
+body{
+    padding: 0;
+    margin: 0;
+}
+.mainHeader{
+    max-height: 5rem;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    background-color: #47474b;
+    color: #FFF;
+}
+.title{
+    font-family: fantasy;
+    font-size: 2rem;
+    padding: 1rem 0;
+    margin: 0;
+    font-weight: 400;
+}
+.container{
+    position: absolute;
+    left: 3rem;
+    top: 0.55rem;
+    display: flex;
+    align-items: center;
+    width: 8rem;
+    justify-content: space-between;
+}
+.icon{
+    width: 3rem;
+    height: 3rem;
+}
+.content{
+    display: flex;
+    flex-direction: column;
+    padding: 0 5%;
+}
+#yearPlots{
+    margin-bottom: 0.5rem;
+}
+.monthInfo, .yearInfo{
+    margin-top: 0.5rem;
+}
+.contentHeader{
+    display: flex;
+    align-items: center;
+}
+.picker{
+    margin-left: 0.5rem;
+}
+.loader {
+  width: 60px;
+  height: 25px;
+  border: 2px solid;
+  box-sizing: border-box;
+  border-radius: 50%;
+  display: grid;
+  animation: l2 2s infinite linear;
+}
+.loader:before,
+.loader:after {
+  content: "";
+  grid-area: 1/1;
+  border: inherit;
+  border-radius: 50%;
+  animation: inherit;
+  animation-duration: 3s;
+}
+.loader:after {
+  --s:-1;
+}
+@keyframes l2 {
+   100% {transform:rotate(calc(var(--s,1)*1turn))}
+}
+.hidden{
+    display: none;
+}
+.modebar-btn svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
