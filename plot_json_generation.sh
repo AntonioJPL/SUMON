@@ -25,7 +25,7 @@ STAMP="$(date -Is)"
 echo "$STAMP :: Checking date $(date +%F)" >> "$LOG_FILE"
 
 # === RUN MONTHLY SCRIPT ON THE 1st OF EVERY MONTH ===
-if [ "$DAY" -eq 13 ]; then
+if [ "$DAY" -eq 1 ]; then
     echo "$STAMP :: Running monthly script..." >> "$LOG_FILE"
     python monthlyMovementZH.py
     # === RUN ANNUAL SCRIPT ONLY ON JANUARY 1st ===
