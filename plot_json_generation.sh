@@ -11,8 +11,7 @@ CONDA_ENV="moveEnv"
 LOG_FILE="$PROJECT_DIR/cron_plots.log"
 
 # === ACTIVATE CONDA ENVIRONMENT ===
-source "$(conda info --base)/etc/profile.d/conda.sh"
-conda activate "$CONDA_ENV"
+source "$PROJECT_DIR/conda_env_setup.sh"
 
 # === CHANGE TO PROJECT DIRECTORY ===
 cd "$PROJECT_DIR"

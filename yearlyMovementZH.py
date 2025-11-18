@@ -103,7 +103,7 @@ for value in values:
 
 
 # --- Save Daily Plot and Data ---
-output_dir = './html/contents' # Define output directory for plots
+output_dir = '/opt/lst-drive/src/SUMON/html/contents' # Define output directory for plots
 # Define image path (though img_path is defined, it's not used; png_path1 is used)
 # img_path = os.path.join(output_dir, f'dayCycles_{currentDate.date()}.png')
 

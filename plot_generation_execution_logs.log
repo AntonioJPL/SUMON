@@ -1,0 +1,1453 @@
+Error: environment file not found
+
+CondaValueError: prefix already exists: /opt/lst-drive/miniconda3/envs/moveEnv
+
+Conda environment created successfully!
+Traceback (most recent call last):
+  File "/opt/lst-drive/src/SUMON/monthlyMovementZH.py", line 2, in <module>
+    import pandas as pd  # For data manipulation and analysis, especially with CSV files
+    ^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'pandas'
+Channels:
+ - conda-forge
+ - defaults
+Platform: linux-64
+Collecting package metadata (repodata.json): ...working... done
+Solving environment: ...working... done
+
+
+==> WARNING: A newer version of conda exists. <==
+    current version: 25.1.1
+    latest version: 25.9.1
+
+Please update conda by running
+
+    $ conda update -n base -c defaults conda
+
+
+
+Downloading and Extracting Packages: ...working...python-3.11.14       | 29.4 MB   |            |   0% 
+scipy-1.16.3         | 16.4 MB   |            |   0% [A
+
+pandas-2.3.3         | 14.6 MB   |            |   0% [A[A
+
+
+icu-75.1             | 11.6 MB   |            |   0% [A[A[A
+
+
+
+numpy-2.3.4          | 9.0 MB    |            |   0% [A[A[A[A
+
+
+
+
+libopenblas-0.3.30   | 5.6 MB    |            |   0% [A[A[A[A[A
+
+
+
+
+
+plotly-6.4.0         | 4.9 MB    |            |   0% [A[A[A[A[A[A
+
+
+
+
+
+
+libstdcxx-15.2.0     | 3.7 MB    |            |   0% [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+tk-8.6.13            | 3.1 MB    |            |   0% [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+openssl-3.6.0        | 3.0 MB    |            |   0% [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+libgfortran5-15.2.0  | 1.5 MB    |            |   0% [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+pip-25.3             | 1.1 MB    |            |   0% [A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+libsqlite-3.51.0     | 923 KB    |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+ncurses-6.5          | 871 KB    |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+libgcc-15.2.0        | 803 KB    |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+setuptools-80.9.0    | 731 KB    |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ld_impl_linux-64-2.4 | 724 KB    |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+zstd-1.5.7           | 554 KB    |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+libgomp-15.2.0       | 437 KB    |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ... (more hidden) ...[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+icu-75.1             | 11.6 MB   |            |   0% [A[A[Apython-3.11.14       | 29.4 MB   |            |   0% 
+
+
+
+numpy-2.3.4          | 9.0 MB    |            |   0% [A[A[A[A
+
+pandas-2.3.3         | 14.6 MB   |            |   0% [A[A
+scipy-1.16.3         | 16.4 MB   |            |   0% [A
+
+
+icu-75.1             | 11.6 MB   | 2          |   2% [A[A[Apython-3.11.14       | 29.4 MB   |            |   1% 
+
+
+
+numpy-2.3.4          | 9.0 MB    | 2          |   3% [A[A[A[A
+
+pandas-2.3.3         | 14.6 MB   | 1          |   2% [A[A
+scipy-1.16.3         | 16.4 MB   | 1          |   2% [A
+
+
+icu-75.1             | 11.6 MB   | #9         |  19% [A[A[Apython-3.11.14       | 29.4 MB   | 7          |   8% 
+
+
+
+numpy-2.3.4          | 9.0 MB    | ##6        |  26% [A[A[A[A
+
+pandas-2.3.3         | 14.6 MB   | #7         |  17% [A[A
+scipy-1.16.3         | 16.4 MB   | #4         |  14% [A
+
+
+icu-75.1             | 11.6 MB   | #####7     |  58% [A[A[A
+
+
+
+numpy-2.3.4          | 9.0 MB    | #######6   |  77% [A[A[A[Apython-3.11.14       | 29.4 MB   | ##2        |  23% 
+
+pandas-2.3.3         | 14.6 MB   | ####6      |  47% [A[A
+scipy-1.16.3         | 16.4 MB   | ####1      |  42% [A
+
+
+
+numpy-2.3.4          | 9.0 MB    | ########## | 100% [A[A[A[A
+
+
+icu-75.1             | 11.6 MB   | #########6 |  97% [A[A[Apython-3.11.14       | 29.4 MB   | ###2       |  33% 
+
+pandas-2.3.3         | 14.6 MB   | #######8   |  78% [A[A
+scipy-1.16.3         | 16.4 MB   | ######9    |  69% [A
+
+
+icu-75.1             | 11.6 MB   | ########## | 100% [A[A[A
+
+
+
+
+libopenblas-0.3.30   | 5.6 MB    |            |   0% [A[A[A[A[Apython-3.11.14       | 29.4 MB   | ####8      |  48% 
+scipy-1.16.3         | 16.4 MB   | #########7 |  98% [A
+
+pandas-2.3.3         | 14.6 MB   | #########9 |  99% [A[A
+
+
+
+
+libopenblas-0.3.30   | 5.6 MB    | ####       |  40% [A[A[A[A[A
+
+
+
+
+
+plotly-6.4.0         | 4.9 MB    |            |   0% [A[A[A[A[A[Apython-3.11.14       | 29.4 MB   | ######3    |  64% 
+
+pandas-2.3.3         | 14.6 MB   | ########## | 100% [A[A
+
+
+
+
+
+plotly-6.4.0         | 4.9 MB    | #######7   |  77% [A[A[A[A[A[Apython-3.11.14       | 29.4 MB   | #######8   |  79% 
+
+
+
+
+
+
+libstdcxx-15.2.0     | 3.7 MB    |            |   0% [A[A[A[A[A[A[Apython-3.11.14       | 29.4 MB   | #########4 |  94% 
+scipy-1.16.3         | 16.4 MB   | ########## | 100% [A
+
+
+
+
+libopenblas-0.3.30   | 5.6 MB    | ########## | 100% [A[A[A[A[A
+
+
+
+
+libopenblas-0.3.30   | 5.6 MB    | ########## | 100% [A[A[A[A[A
+
+
+
+
+
+plotly-6.4.0         | 4.9 MB    | ########## | 100% [A[A[A[A[A[A
+
+
+
+
+
+
+libstdcxx-15.2.0     | 3.7 MB    | ########## | 100% [A[A[A[A[A[A[A
+
+
+
+
+
+
+libstdcxx-15.2.0     | 3.7 MB    | ########## | 100% [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+tk-8.6.13            | 3.1 MB    |            |   0% [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+openssl-3.6.0        | 3.0 MB    |            |   1% [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+libgfortran5-15.2.0  | 1.5 MB    | 1          |   1% [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+pip-25.3             | 1.1 MB    | 1          |   1% [A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+pip-25.3             | 1.1 MB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+libgfortran5-15.2.0  | 1.5 MB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+tk-8.6.13            | 3.1 MB    | ########## | 100% [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+tk-8.6.13            | 3.1 MB    | ########## | 100% [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+openssl-3.6.0        | 3.0 MB    | ########## | 100% [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+openssl-3.6.0        | 3.0 MB    | ########## | 100% [A[A[A[A[A[A[A[A[A
+
+
+icu-75.1             | 11.6 MB   | ########## | 100% [A[A[A
+
+
+
+
+
+
+
+
+
+
+
+libsqlite-3.51.0     | 923 KB    | 1          |   2% [A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+ncurses-6.5          | 871 KB    | 1          |   2% [A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+setuptools-80.9.0    | 731 KB    | 2          |   2% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+libgcc-15.2.0        | 803 KB    | 1          |   2% [A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+setuptools-80.9.0    | 731 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+ncurses-6.5          | 871 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+libsqlite-3.51.0     | 923 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+libgcc-15.2.0        | 803 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+zstd-1.5.7           | 554 KB    | 2          |   3% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+libgomp-15.2.0       | 437 KB    | 3          |   4% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ld_impl_linux-64-2.4 | 724 KB    | 2          |   2% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ... (more hidden) ...[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+zstd-1.5.7           | 554 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ... (more hidden) ...[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+libgomp-15.2.0       | 437 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+libgomp-15.2.0       | 437 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ld_impl_linux-64-2.4 | 724 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ld_impl_linux-64-2.4 | 724 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[Apython-3.11.14       | 29.4 MB   | ########## | 100% 
+
+
+
+numpy-2.3.4          | 9.0 MB    | ########## | 100% [A[A[A[A
+
+
+
+
+libopenblas-0.3.30   | 5.6 MB    | ########## | 100% [A[A[A[A[A
+scipy-1.16.3         | 16.4 MB   | ########## | 100% [A
+
+
+
+
+
+
+libstdcxx-15.2.0     | 3.7 MB    | ########## | 100% [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+pip-25.3             | 1.1 MB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+pip-25.3             | 1.1 MB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+libgfortran5-15.2.0  | 1.5 MB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+libgfortran5-15.2.0  | 1.5 MB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+plotly-6.4.0         | 4.9 MB    | ########## | 100% [A[A[A[A[A[A
+
+pandas-2.3.3         | 14.6 MB   | ########## | 100% [A[A
+
+
+
+
+
+
+
+
+openssl-3.6.0        | 3.0 MB    | ########## | 100% [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+tk-8.6.13            | 3.1 MB    | ########## | 100% [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+libsqlite-3.51.0     | 923 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+libsqlite-3.51.0     | 923 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+setuptools-80.9.0    | 731 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+setuptools-80.9.0    | 731 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+libgcc-15.2.0        | 803 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+libgcc-15.2.0        | 803 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+zstd-1.5.7           | 554 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+zstd-1.5.7           | 554 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ... (more hidden) ...[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ... (more hidden) ...[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+libgomp-15.2.0       | 437 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ld_impl_linux-64-2.4 | 724 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+ncurses-6.5          | 871 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+ncurses-6.5          | 871 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[Apython-3.11.14       | 29.4 MB   | ########## | 100% 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                      [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A                                                     
+                                                     [A
+
+                                                     [A[A
+
+
+                                                     [A[A[A
+
+
+
+                                                     [A[A[A[A
+
+
+
+
+                                                     [A[A[A[A[A
+
+
+
+
+
+                                                     [A[A[A[A[A[A
+
+
+
+
+
+
+                                                     [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+                                                     [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+                                                     [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+                                                     [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+                                                     [A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+                                                     [A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+                                                     [A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                     [A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                     [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                     [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                     [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                     [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+[A
+
+[A[A
+
+
+[A[A[A
+
+
+
+[A[A[A[A
+
+
+
+
+[A[A[A[A[A
+
+
+
+
+
+[A[A[A[A[A[A
+
+
+
+
+
+
+[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
+[A
+
+[A[A
+
+
+[A[A[A
+
+
+
+[A[A[A[A
+
+
+
+
+[A[A[A[A[A
+
+
+
+
+
+[A[A[A[A[A[A
+
+
+
+
+
+
+[A[A[A[A[A[A[A done
+Preparing transaction: - \ | / - done
+Verifying transaction: | / - \ | / - \ | / - \ | / - \ | / done
+Executing transaction: \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ done
+Installing pip dependencies: / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / Ran pip subprocess with arguments:
+['/opt/lst-drive/miniconda3/envs/moveEnv/bin/python', '-m', 'pip', 'install', '-U', '-r', '/opt/lst-drive/src/SUMON/condaenv.oyfzbv__.requirements.txt', '--exists-action=b']
+Pip subprocess output:
+Collecting pymongo (from -r /opt/lst-drive/src/SUMON/condaenv.oyfzbv__.requirements.txt (line 1))
+  Downloading pymongo-4.15.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (22 kB)
+Collecting dnspython<3.0.0,>=1.16.0 (from pymongo->-r /opt/lst-drive/src/SUMON/condaenv.oyfzbv__.requirements.txt (line 1))
+  Downloading dnspython-2.8.0-py3-none-any.whl.metadata (5.7 kB)
+Downloading pymongo-4.15.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.5/1.5 MB 6.5 MB/s  0:00:00
+Downloading dnspython-2.8.0-py3-none-any.whl (331 kB)
+Installing collected packages: dnspython, pymongo
+
+Successfully installed dnspython-2.8.0 pymongo-4.15.4
+
+done
+#
+# To activate this environment, use
+#
+#     $ conda activate moveEnv
+#
+# To deactivate an active environment, use
+#
+#     $ conda deactivate
+
+Conda environment created successfully!
+/opt/lst-drive/src/SUMON/monthlyMovementZH.py:42: RuntimeWarning: overflow encountered in power
+  return a * N**(-b)
+Generating the month plots...
+General monthly plots have been generated
+Retrieving notices: - \ done
+
+CondaValueError: prefix already exists: /opt/lst-drive/miniconda3/envs/moveEnv
+
+Conda environment created successfully!
+Retrieving notices: - \ | done
+
+CondaValueError: prefix already exists: /opt/lst-drive/miniconda3/envs/moveEnv
+
+Conda environment created successfully!
+Retrieving notices: - \ done
+
+CondaValueError: prefix already exists: /opt/lst-drive/miniconda3/envs/moveEnv
+
+Conda environment created successfully!
+
+CondaValueError: prefix already exists: /opt/lst-drive/miniconda3/envs/moveEnv
+
+Conda environment created successfully!
