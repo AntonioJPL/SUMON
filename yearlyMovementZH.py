@@ -1,583 +1,660 @@
-# Import necessary libraries
-import pandas as pd  # For data manipulation and analysis, especially with CSV files
-import numpy as np   # For numerical operations, especially array manipulations
-import plotly.express as px # For creating interactive plots easily
-import plotly.graph_objects as go # For more control over plot creation
-from scipy.optimize import curve_fit # For curve fitting, used here for the S-N curve
-import os # For interacting with the operating system, like creating directories and paths
-from mongo_utils import MongoDB # Custom utility for MongoDB interactions (assumed to be in a local file)
-from datetime import datetime, timedelta # For handling dates and times
-import sys # For accessing command-line arguments
-from pytz import UTC # For timezone handling (Coordinated Universal Time)
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+from scipy.optimize import curve_fit
+import os
+from mongo_utils import MongoDB
+from datetime import datetime, timedelta
+import sys
 from dateutil.relativedelta import relativedelta
-import calendar
 from collections import defaultdict
+import calendar
 import json
 
 print("Generating the year plots...")
-# --- Date Configuration ---
-# Check if a date is provided as a command-line argument
+
 if len(sys.argv) > 1:
-    date = datetime.strptime(sys.argv[1], "%Y-%m-%d") # Use the provided date string
+    date = datetime.strptime(sys.argv[1], "%Y-%m-%d")
 else:
-    date = datetime.now() # No date provided
- 
-# Define the end date for the analysis period
-#today = datetime.now()
+    date = datetime.now()
+
 today = date
-#Yesterday value is start of past month
-yesterday = today - relativedelta(years=1)
+one_year_ago = today - relativedelta(years=1)
+current_year = today.year
+data_year = one_year_ago.year
 
 fixed_start = datetime(2018, 1, 1)
-# --- S-N Curve Configuration (Stress-Number of Cycles) ---
-# Define known stress points and corresponding number of cycles to failure
-stress = np.array([292, 136, 63, 50, 37, 32, 20]) # Stress values in MPa
-cycles = np.array([1e4, 1e5, 1e6, 2e6, 5e6, 1e7, 1e8]) # Number of cycles
 
-# Define the S-N curve function (Basquin's equation form)
+output_dir = "D:/github/SUMON-Repo/html/contents"
+
+stress_points = np.array([292, 136, 63, 50, 37, 32, 20])
+cycles_points = np.array([1e4, 1e5, 1e6, 2e6, 5e6, 1e7, 1e8])
+
+
 def sn_curve(N, a, b):
-    """
-    Calculates stress (S) given number of cycles (N) based on S = a * N^(-b).
-    Clips N to avoid issues with very low or very high cycle counts.
-    """
-    N = np.clip(N, 1e3, 1e12) # Clip N to a practical range
-    return a * N**(-b)
+    N = np.clip(N, 1e3, 1e12)
+    return a * N ** (-b)
 
-# Fit the S-N curve function to the experimental data to find parameters 'a' and 'b'
-params, _ = curve_fit(sn_curve, cycles, stress)
-a, b = params # Unpack the fitted parameters
 
-# Define helper functions based on the fitted S-N curve
+params, _ = curve_fit(sn_curve, cycles_points, stress_points)
+a_sn, b_sn = params
+
+
 def estimate_cycles(stress_input):
-    """Estimates the number of cycles to failure for a given stress input."""
-    return (stress_input / a) ** (-1 / b)
+    return (stress_input / a_sn) ** (-1 / b_sn)
+
 
 def estimate_stress(cycles_input):
-    """Estimates the stress for a given number of cycles."""
-    return a * cycles_input**(-b)
+    return a_sn * cycles_input ** (-b_sn)
 
 
 def fig_to_responsive_json(fig):
     fig.update_layout(autosize=True)
-    #fig.update_layout(margin=dict(l=40, r=20, t=40, b=40))
     spec = fig.to_plotly_json()
-    spec.get('layout', {}).pop('width', None)
-    spec.get('layout', {}).pop('height', None)
+    spec.get("layout", {}).pop("width", None)
+    spec.get("layout", {}).pop("height", None)
     return spec
 
-# --- Initialization for Loop and Accumulated Values ---
-currentDate = yesterday # Get the starting day of the month
-accumulated_total_damage = 0 # Initialize total accumulated damage
-daily_values = [] # List to store daily damage values
-accumulated_values = [] # List to store cumulative damage values over time
-accumulated_dates = [] # List to store dates corresponding to accumulated values
-limit_value = 1 # Predefined daily damage limit (hard limit) Based on a 60 year lifetime
-soft_value = 0.8 # Predefined daily damage limit (soft limit) 80% of limit_day_value
-accumulated_limit = [] # List to store the cumulative hard limit over time
-accumulated_soft = [] # List to store the cumulative soft limit over time
-currentMonth = currentDate.month
-currentYear = currentDate.year
-accumulated_yearly_damage = 0
-accumulated_year_dates = []
-accumulated_year_values = []
 
-values = MongoDB.getDamageValues(MongoDB, fixed_start, today)
+def build_global_accumulated_damage(docs, year_now):
+    docs_sorted = sorted(docs, key=lambda d: d["T"])
+    if not docs_sorted:
+        return [], [], [], [], 0.0, 0.0, None, None
 
-for value in values:
-    if value['DMG'] != 0:
-        accumulated_total_damage += value['DMG']
-        if value['T'].year != currentYear:
-            accumulated_dates.append(value['T'])
-            if accumulated_values:
-                accumulated_values.append(accumulated_values[len(accumulated_values)-1] + value['DMG'])
-            else: 
-                accumulated_values.append(value['DMG'])
+    historical_dates = []
+    historical_values = []
+    year_dates = []
+    year_values = []
+
+    accumulated_total = 0.0
+    accumulated_yearly = 0.0
+
+    for d in docs_sorted:
+        dmg = d.get("DMG", 0.0) or 0.0
+        if dmg == 0:
+            continue
+
+        accumulated_total += dmg
+        year_of_doc = d["T"].year
+
+        if year_of_doc < year_now:
+            historical_dates.append(d["T"])
+            historical_values.append(accumulated_total)
+        elif year_of_doc == year_now:
+            year_dates.append(d["T"])
+            year_values.append(accumulated_total)
+            accumulated_yearly += dmg
+
+    first_date = docs_sorted[0]["T"]
+    last_date = docs_sorted[-1]["T"]
+
+    return (
+        historical_dates,
+        historical_values,
+        year_dates,
+        year_values,
+        accumulated_total,
+        accumulated_yearly,
+        first_date,
+        last_date,
+    )
+
+
+def build_monthly_series(docs, value_key):
+    monthly_totals = defaultdict(float)
+    total_value = 0.0
+
+    for entry in docs:
+        val = entry.get(value_key, 0.0) or 0.0
+        month = entry["T"].month
+        monthly_totals[month] += val
+        total_value += val
+
+    monthly_values = []
+    accumulated_monthly = []
+    running = 0.0
+
+    for m in range(1, 13):
+        v = monthly_totals.get(m, 0.0)
+        if v == 0.0:
+            monthly_values.append(None)
+            if not accumulated_monthly:
+                accumulated_monthly.append(None)
+            else:
+                accumulated_monthly.append(accumulated_monthly[-1])
         else:
-            accumulated_year_dates.append(value['T'])
-            if accumulated_year_values:
-                accumulated_year_values.append(accumulated_year_values[len(accumulated_year_values)-1] + value['DMG'])
-            else: 
-                accumulated_year_values.append(accumulated_values[-1]+value['DMG'])
-    if value['T'].year == currentYear:
-        accumulated_yearly_damage += value['DMG']
+            monthly_values.append(v)
+            running += v
+            accumulated_monthly.append(running)
+
+    return monthly_values, accumulated_monthly, total_value
 
 
-# --- Save Daily Plot and Data ---
-output_dir = '/opt/lst-drive/src/SUMON/html/contents' # Define output directory for plots
-# Define image path (though img_path is defined, it's not used; png_path1 is used)
-# img_path = os.path.join(output_dir, f'dayCycles_{currentDate.date()}.png')
-
-# Create a DataFrame from the raw daily values and save to CSV
-#df = pd.DataFrame(values, columns=["T", "ZA"])
-#df['T'] = pd.to_datetime(df['T'], unit='ms', errors='coerce') # Convert timestamp to datetime
-#df = df.dropna(subset=['T', 'ZA']) # Drop rows with invalid date/ZA
-#df.to_csv(f'dataFiles/data_{currentDate.date()}.csv', index=False) # Save daily data
-
-#sys.exit(0) Day stopper     
-
-# Current value and date
-current_value = accumulated_year_values[-1]
-current_date = accumulated_year_dates[-1]
-
-# Estimate how many days until the value reaches 1
-
-estimated_years = int((1-accumulated_total_damage) / accumulated_yearly_damage)
-if estimated_years < 25500:
-    estimated_date = current_date + relativedelta(years=estimated_years)
-    projected_dates = [current_date + relativedelta(years=i) for i in range(0, estimated_years + 1)]
-    projected_values = [accumulated_total_damage+(accumulated_yearly_damage * i) for i in range(0, estimated_years)]
+def max_non_none(series):
+    return max((v for v in series if v is not None), default=0.0)
 
 
-#sys.exit(0)
+all_damage_docs = MongoDB.getDamageValues(MongoDB, fixed_start, today)
 
-# === Plot ===
-fig4 = go.Figure()
+(
+    hist_dates,
+    hist_values,
+    year_dates,
+    year_values,
+    accumulated_total_damage,
+    accumulated_yearly_damage,
+    first_date,
+    last_date,
+) = build_global_accumulated_damage(all_damage_docs, data_year)
 
-# Blue line - actual values
-fig4.add_trace(go.Scatter(
-    x=accumulated_dates,
-    y=accumulated_values,
-    mode='lines+markers',
-    name='Accumulated Damage (past)',
-    line=dict(color='blue')
-))
-# Purple line - current year values
-fig4.add_trace(go.Scatter(
-    x=accumulated_year_dates,
-    y=accumulated_year_values,
-    mode='lines+markers',
-    name='Accumulated Damage (current year)',
-    line=dict(color='purple')
-))
+if not first_date or not last_date:
+    print("No damage data found. Aborting.")
+    sys.exit(0)
 
-#Red limit line
-fig4.add_shape(
+total_calendar_days = (last_date - first_date).days + 1
+n_years_observed = total_calendar_days / 365.25 if total_calendar_days > 0 else 0.0
+typical_yearly_damage = accumulated_total_damage / n_years_observed if n_years_observed > 0 else 0.0
+
+projected_dates = []
+projected_values = []
+estimated_date = None
+
+if accumulated_yearly_damage > 0 and year_dates:
+    remaining_damage = max(0.0, 1.0 - accumulated_total_damage)
+    estimated_years = int(remaining_damage / accumulated_yearly_damage)
+    if 0 < estimated_years < 25500:
+        estimated_date = year_dates[-1] + relativedelta(years=estimated_years)
+        projected_dates = [
+            year_dates[-1] + relativedelta(years=i) for i in range(0, estimated_years + 1)
+        ]
+        projected_values = [
+            accumulated_total_damage + accumulated_yearly_damage * i
+            for i in range(0, estimated_years + 1)
+        ]
+
+baseline_dates = []
+baseline_values = []
+baseline_break_date = None
+if typical_yearly_damage > 0:
+    years_to_break_baseline = 1.0 / typical_yearly_damage
+    n_year_steps = int(np.ceil(years_to_break_baseline))
+    for i in range(0, n_year_steps + 1):
+        date_i = datetime(first_date.year + i, 1, 1)
+        value_i = typical_yearly_damage * i
+        if value_i > 1.0:
+            value_i = 1.0
+        baseline_dates.append(date_i)
+        baseline_values.append(value_i)
+    baseline_break_date = datetime(first_date.year, 1, 1) + relativedelta(years=n_year_steps)
+
+fig_year_projection = go.Figure()
+
+if baseline_dates:
+    fig_year_projection.add_trace(go.Scatter(
+        x=baseline_dates,
+        y=baseline_values,
+        mode="lines",
+        name="Historical baseline (average yearly damage)",
+        line=dict(color="green", width=2),
+        showlegend=True,
+    ))
+    if baseline_break_date is not None:
+        fig_year_projection.add_trace(go.Scatter(
+            x=[baseline_break_date],
+            y=[1],
+            mode="markers+text",
+            name="Estimated breaking point (historical trend)",
+            marker=dict(color="green", size=12),
+            text=[baseline_break_date.strftime("%Y-%m-%d")],
+            textposition="top center",
+            textfont=dict(color="green", size=18),
+            showlegend=False,
+        ))
+
+if hist_dates:
+    fig_year_projection.add_trace(go.Scatter(
+        x=hist_dates,
+        y=hist_values,
+        mode="lines+markers",
+        name="Actual accumulated damage (previous years)",
+        line=dict(color="blue"),
+    ))
+
+if year_dates:
+    fig_year_projection.add_trace(go.Scatter(
+        x=year_dates,
+        y=year_values,
+        mode="lines+markers",
+        name="Actual accumulated damage (current year)",
+        line=dict(color="purple"),
+    ))
+
+fig_year_projection.add_shape(
     type="line",
     xref="paper",
     yref="y",
-    x0=0, x1=1,
-    y0=1, y1=1,
-    line=dict(color="red", width=2)
+    x0=0,
+    x1=1,
+    y0=1,
+    y1=1,
+    line=dict(color="red", width=2),
 )
 
-# Red dashed line - projection
-if projected_dates:
-    fig4.add_trace(go.Scatter(
+if projected_dates and projected_values and estimated_date:
+    fig_year_projection.add_trace(go.Scatter(
         x=projected_dates,
         y=projected_values,
-        mode='lines',
-        name='Projection to Breaking Point bassed on all the data',
-        line=dict(color='red', dash='dash')
+        mode="lines",
+        name="Projection to breaking point (current-year trend)",
+        line=dict(color="red", dash="dash"),
     ))
-
-    # Mark the point where damage reaches 1
-    fig4.add_trace(go.Scatter(
+    fig_year_projection.add_trace(go.Scatter(
         x=[estimated_date],
         y=[1],
-        mode='markers+text',
-        name='Estimated reach of Breaking Point',
-        marker=dict(color='red', size=12),
-        text=[f"{estimated_date}"],
-        textposition="bottom center",
+        mode="markers+text",
+        name="Estimated breaking point (current-year trend)",
+        marker=dict(color="red", size=12),
+        text=[estimated_date.strftime("%Y-%m-%d")],
+        textposition="top center",
         textfont=dict(color="red", size=18),
     ))
-percent = round(accumulated_total_damage * 100, 2)
-label = f"{percent}%<br>{currentDate.year}"
 
-fig4.add_trace(go.Scatter(
-    x=[accumulated_year_dates[-1]],
-    y=[accumulated_total_damage],
-    mode='markers+text',
-    name=f"{currentDate.year}",
-    marker=dict(color='purple', size=12),
-    text=label,
-    textposition="middle right",
-    textfont=dict(color="purple", size=18),
-    showlegend=False
-))
+percent_total = round(accumulated_total_damage * 100.0, 2)
+label_percent = f"{percent_total}%<br>{data_year}"
 
-fig4.update_layout(
+if year_dates:
+    fig_year_projection.add_trace(go.Scatter(
+        x=[year_dates[-1]],
+        y=[accumulated_total_damage],
+        mode="markers+text",
+        name=f"Actual state {data_year}",
+        marker=dict(color="purple", size=12),
+        text=label_percent,
+        textposition="middle right",
+        textfont=dict(color="purple", size=18),
+        showlegend=False,
+    ))
+
+fig_year_projection.update_layout(
     font=dict(size=20),
     title=dict(
         text="Accumulated Damage and Projection to Break Point (Year)",
         y=0.97,
         x=0,
         xanchor="left",
-        yanchor="top"
+        yanchor="top",
     ),
     xaxis_title="Date",
     yaxis_title="Accumulated Damage",
     xaxis=dict(tickfont=dict(size=18)),
-    yaxis=dict(type="log", range=[-4, 1], dtick=1, tickfont=dict(size=16)),
+    yaxis=dict(type="log", range=[-4, 1.2], dtick=1, tickfont=dict(size=16)),
     template="plotly_white",
     legend=dict(
         orientation="h",
         yanchor="top",
         y=1.15,
         xanchor="left",
-        x=-0.05
+        x=-0.05,
     ),
-    margin=dict(t=100)
+    margin=dict(t=100),
 )
 
-fig4.update_xaxes(showline=True, linewidth=2, linecolor='black') #Plot border on X axis
-fig4.update_yaxes(showline=True, linewidth=2, linecolor='black') #Plot border on Y axis
-os.makedirs(output_dir+"/projection_plots", exist_ok=True) # Ensure the output directory exists
-fixed_date = currentDate
-json_path4 = os.path.join(output_dir+"/projection_plots", f'Projection_{fixed_date.year}.json')
-spec4 = fig_to_responsive_json(fig4)
-with open(json_path4, "w") as f:
-    json.dump(spec4, f, default=str)
+fig_year_projection.update_xaxes(showline=True, linewidth=2, linecolor="black")
+fig_year_projection.update_yaxes(showline=True, linewidth=2, linecolor="black")
 
-currentYear = currentDate.year
-# --- Post-Loop Analysis and Plotting ---
-estimated_30_lifetime = accumulated_total_damage* 30
-estimated_60_lifetime = accumulated_total_damage* 60
-monthly_totals = defaultdict(float)
-currentYear = MongoDB.getDamageValues(MongoDB, yesterday, today)
-accumulatedDamage = []
-for entry in currentYear:
-    month = entry['T'].month
-    monthly_totals[month] += entry['DMG']
+os.makedirs(os.path.join(output_dir, "projection_plots"), exist_ok=True)
+json_path_proj = os.path.join(output_dir, "projection_plots", f"Projection_{data_year}.json")
+spec_proj = fig_to_responsive_json(fig_year_projection)
+with open(json_path_proj, "w") as f:
+    json.dump(spec_proj, f, default=str)
 
-for element in range(1,13):
-    if element in monthly_totals:
-        if not accumulatedDamage:
-            accumulatedDamage.append(monthly_totals[element])
-        else:
-            if accumulatedDamage[len(accumulatedDamage)-1] != None:
-                accumulatedDamage.append(monthly_totals[element] + accumulatedDamage[len(accumulatedDamage)-1])
-            else:
-                accumulatedDamage.append(monthly_totals[element])
-    else:
-        if not accumulatedDamage:
-            accumulatedDamage.append(None)
-        else:
-            accumulatedDamage.append(0 + accumulatedDamage[len(accumulatedDamage)-1])
+current_year_docs = MongoDB.getDamageValues(MongoDB, one_year_ago, today)
+prev_year_docs = MongoDB.getDamageValues(
+    MongoDB, one_year_ago - relativedelta(years=1), today - relativedelta(years=1)
+)
+prevprev_year_docs = MongoDB.getDamageValues(
+    MongoDB, one_year_ago - relativedelta(years=2), today - relativedelta(years=2)
+)
 
+monthly_current_damage, acc_current_damage, total_current_damage = build_monthly_series(
+    current_year_docs, "DMG"
+)
+monthly_prev_damage, acc_prev_damage, total_prev_damage = build_monthly_series(
+    prev_year_docs, "DMG"
+)
+monthly_prevprev_damage, acc_prevprev_damage, total_prevprev_damage = build_monthly_series(
+    prevprev_year_docs, "DMG"
+)
 
-monthly_value = [monthly_totals[m] if m in monthly_totals else None for m in range(1, 13)]
+estimated_30_lifetime_all = accumulated_total_damage * 30.0
+estimated_60_lifetime_all = accumulated_total_damage * 60.0
 
-totalYearDamage = 0
-for element in currentYear:
-    totalYearDamage += element['DMG']
-estimated_30_lifetime_1 = totalYearDamage* 30
-estimated_60_lifetime_1 = totalYearDamage* 60
+estimated_30_current = total_current_damage * 30.0
+estimated_60_current = total_current_damage * 60.0
+estimated_30_prev = total_prev_damage * 30.0
+estimated_60_prev = total_prev_damage * 60.0
+estimated_30_prevprev = total_prevprev_damage * 30.0
+estimated_60_prevprev = total_prevprev_damage * 60.0
 
-previousYear = MongoDB.getDamageValues(MongoDB, yesterday-relativedelta(years=1), today-relativedelta(years=1))
-totalPrevYearDamage = 0
-prev_monthly_totals = defaultdict(float)
-accumulatedPrevDamage = []
-for entry in previousYear:
-    month = entry['T'].month
-    prev_monthly_totals[month] += entry['DMG']
-    totalPrevYearDamage += entry['DMG']
+month_labels = [calendar.month_abbr[m] for m in range(1, 13)]
 
-for element in range(1,13):
-    if element in prev_monthly_totals:
-        if not accumulatedPrevDamage:
-            accumulatedPrevDamage.append(prev_monthly_totals[element])
-        else:
-            if accumulatedPrevDamage[len(accumulatedPrevDamage)-1] != None:
-                accumulatedPrevDamage.append(prev_monthly_totals[element] + accumulatedPrevDamage[len(accumulatedPrevDamage)-1])
-            else:
-                accumulatedPrevDamage.append(prev_monthly_totals[element])
-    else:
-        if not accumulatedPrevDamage:
-            accumulatedPrevDamage.append(None)
-        else:
-            accumulatedPrevDamage.append(0 + accumulatedPrevDamage[len(accumulatedPrevDamage)-1])
+fig_month_damage = go.Figure()
 
-
-prev_monthly_value = [prev_monthly_totals[m] if m in prev_monthly_totals else None for m in range(1, 13)]
-estimated_30_lifetime_lastYear = totalPrevYearDamage* 30
-estimated_60_lifetime_lastYear = totalPrevYearDamage* 60
-
-previousPreviousYear = MongoDB.getDamageValues(MongoDB, yesterday-relativedelta(years=2), today-relativedelta(years=2))
-prev_prev_monthly_totals = defaultdict(float)
-totalPrevPrevYearDamage = 0
-accumulatedPrevPrevDamage = []
-for entry in previousPreviousYear:
-    month = entry['T'].month
-    prev_prev_monthly_totals[month] += entry['DMG']
-    totalPrevPrevYearDamage += entry['DMG']
-
-for element in range(1,13):
-    if element in prev_prev_monthly_totals:
-        if not accumulatedPrevPrevDamage:
-            if prev_prev_monthly_totals[element] != 0:
-                accumulatedPrevPrevDamage.append(prev_prev_monthly_totals[element])
-        else:
-            if accumulatedPrevPrevDamage[len(accumulatedPrevPrevDamage)-1] != None:
-                accumulatedPrevPrevDamage.append(prev_prev_monthly_totals[element] + accumulatedPrevPrevDamage[len(accumulatedPrevPrevDamage)-1])
-            else:
-                if prev_prev_monthly_totals[element] != 0:
-                    accumulatedPrevPrevDamage.append(prev_prev_monthly_totals[element])
-    else:
-        if not accumulatedPrevPrevDamage:
-            accumulatedPrevPrevDamage.append(None)
-        else:
-            accumulatedPrevPrevDamage.append(0 + accumulatedPrevPrevDamage[len(accumulatedPrevPrevDamage)-1])
-
-prev_prev_monthly_value = [prev_prev_monthly_totals[m] if m in prev_prev_monthly_totals else None for m in range(1, 13)]
-estimated_30_lifetime_last_lastYear = totalPrevPrevYearDamage* 30
-estimated_60_lifetime_last_lastYear = totalPrevPrevYearDamage* 60
-
-# --- Plot 2: Daily and Accumulated Damage Evolution ---
-fig2 = go.Figure() # Initialize a new Plotly figure
-
-# Add a bar trace for daily damage values
-fig2.add_trace(go.Bar(
-    x=[calendar.month_abbr[element] for element in range(1,13)],
-    y=monthly_value,
-    name=f"Daily Damage {yesterday.year}",
+fig_month_damage.add_trace(go.Bar(
+    x=month_labels,
+    y=monthly_current_damage,
+    name=f"Monthly Damage {one_year_ago.year}",
     marker=dict(color="steelblue"),
-    opacity=0.6
+    opacity=0.6,
 ))
-
-# Add a line trace for accumulated damage
-fig2.add_trace(go.Scatter(
-    x=[calendar.month_abbr[element] for element in range(1, 13)],
-    y=accumulatedDamage,
+fig_month_damage.add_trace(go.Scatter(
+    x=month_labels,
+    y=acc_current_damage,
     mode="lines+markers",
     line=dict(color="dodgerblue", width=3),
     marker=dict(size=6),
-    name=f"Accumulated Damage {yesterday.year}"
+    name=f"Accumulated Damage {one_year_ago.year}",
 ))
 
-# Add a line trace for the accumulated hard limit
-fig2.add_shape(
+fig_month_damage.add_shape(
     type="line",
     xref="paper",
     yref="y",
-    x0=0, x1=1,
-    y0=estimated_60_lifetime, y1=estimated_60_lifetime,
+    x0=0,
+    x1=1,
+    y0=estimated_60_lifetime_all,
+    y1=estimated_60_lifetime_all,
     line=dict(color="dodgerblue", width=2, dash="solid"),
 )
-
-# Add a line trace for the accumulated soft limit
-fig2.add_shape(
+fig_month_damage.add_shape(
     type="line",
     xref="paper",
     yref="y",
-    x0=0, x1=1,
-    y0=estimated_30_lifetime, y1=estimated_30_lifetime,
+    x0=0,
+    x1=1,
+    y0=estimated_30_lifetime_all,
+    y1=estimated_30_lifetime_all,
     line=dict(color="steelblue", width=2, dash="dot"),
 )
 
-# Add a bar trace for daily damage values
-fig2.add_trace(go.Bar(
-    x=[calendar.month_abbr[element] for element in range(1,13)],
-    y=prev_monthly_value,
-    name=f"Daily Damage {yesterday.year-1}",
+fig_month_damage.add_trace(go.Bar(
+    x=month_labels,
+    y=monthly_prev_damage,
+    name=f"Monthly Damage {one_year_ago.year - 1}",
     marker=dict(color="darkorange"),
-    opacity=0.3
+    opacity=0.3,
 ))
-
-# Add a line trace for accumulated damage
-fig2.add_trace(go.Scatter(
-    x=[calendar.month_abbr[element] for element in range(1, 13)],
-    y=accumulatedPrevDamage,
+fig_month_damage.add_trace(go.Scatter(
+    x=month_labels,
+    y=acc_prev_damage,
     mode="lines+markers",
     line=dict(color="orangered", width=3),
     marker=dict(size=6),
-    name=f"Accumulated Damage {yesterday.year-1}",
-    opacity=0.3
+    name=f"Accumulated Damage {one_year_ago.year - 1}",
+    opacity=0.3,
 ))
 
-# Add a line trace for the accumulated hard limit
-fig2.add_shape(
+fig_month_damage.add_shape(
     type="line",
     xref="paper",
     yref="y",
-    x0=0, x1=1,
-    y0=estimated_60_lifetime_lastYear, y1=estimated_60_lifetime_lastYear,
+    x0=0,
+    x1=1,
+    y0=estimated_60_prev,
+    y1=estimated_60_prev,
     line=dict(color="orangered", width=2, dash="solid"),
-    opacity=0.75
+    opacity=0.75,
 )
-
-# Add a line trace for the accumulated soft limit
-fig2.add_shape(
+fig_month_damage.add_shape(
     type="line",
     xref="paper",
     yref="y",
-    x0=0, x1=1,
-    y0=estimated_30_lifetime_lastYear, y1=estimated_30_lifetime_lastYear,
+    x0=0,
+    x1=1,
+    y0=estimated_30_prev,
+    y1=estimated_30_prev,
     line=dict(color="darkorange", width=2, dash="dot"),
-    opacity=0.75
+    opacity=0.75,
 )
 
-# Add a bar trace for daily damage values
-fig2.add_trace(go.Bar(
-    x=[calendar.month_abbr[element] for element in range(1,13)],
-    y=prev_prev_monthly_value,
-    name=f"Daily Damage {yesterday.year-2}",
+fig_month_damage.add_trace(go.Bar(
+    x=month_labels,
+    y=monthly_prevprev_damage,
+    name=f"Monthly Damage {one_year_ago.year - 2}",
     marker=dict(color="darkgreen"),
-    opacity=0.3
+    opacity=0.3,
 ))
-
-# Add a line trace for accumulated damage
-fig2.add_trace(go.Scatter(
-    x=[calendar.month_abbr[element] for element in range(1, 13)],
-    y=accumulatedPrevPrevDamage,
+fig_month_damage.add_trace(go.Scatter(
+    x=month_labels,
+    y=acc_prevprev_damage,
     mode="lines+markers",
     line=dict(color="springgreen", width=3),
     marker=dict(size=6),
-    name=f"Accumulated Damage {yesterday.year-2}",
-    opacity=0.3
+    name=f"Accumulated Damage {one_year_ago.year - 2}",
+    opacity=0.3,
 ))
 
-# Add a line trace for the accumulated hard limit
-#Red limit line
-fig2.add_shape(
+fig_month_damage.add_shape(
     type="line",
     xref="paper",
     yref="y",
-    x0=0, x1=1,
-    y0=estimated_60_lifetime_last_lastYear, y1=estimated_60_lifetime_last_lastYear,
+    x0=0,
+    x1=1,
+    y0=estimated_60_prevprev,
+    y1=estimated_60_prevprev,
     line=dict(color="springgreen", width=2, dash="solid"),
-    opacity=0.75
+    opacity=0.75,
 )
-
-# Add a line trace for the accumulated soft limit
-fig2.add_shape(
+fig_month_damage.add_shape(
     type="line",
     xref="paper",
     yref="y",
-    x0=0, x1=1,
-    y0=estimated_30_lifetime_last_lastYear, y1=estimated_30_lifetime_last_lastYear,
+    x0=0,
+    x1=1,
+    y0=estimated_30_prevprev,
+    y1=estimated_30_prevprev,
     line=dict(color="darkgreen", width=2, dash="dot"),
-    opacity=0.75
+    opacity=0.75,
 )
 
-fig2.add_shape(
+fig_month_damage.add_shape(
     type="line",
     xref="paper",
     yref="y",
-    x0=0, x1=1,
-    y0=1, y1=1,
+    x0=0,
+    x1=1,
+    y0=1,
+    y1=1,
     line=dict(color="black", width=2, dash="solid"),
-    opacity=0.75
+    opacity=0.75,
 )
-
-# Add a line trace for the accumulated soft limit
-fig2.add_shape(
+fig_month_damage.add_shape(
     type="line",
     xref="paper",
     yref="y",
-    x0=0, x1=1,
-    y0=0.8, y1=0.8,
+    x0=0,
+    x1=1,
+    y0=0.8,
+    y1=0.8,
     line=dict(color="black", width=2, dash="dot"),
-    opacity=0.75
+    opacity=0.75,
 )
 
-# Update layout for the second plot
-fig2.update_layout(
+fig_month_damage.update_layout(
     font=dict(size=20),
     title=dict(
-        text="Monthly and accumulated evolution with limits",
+        text="Monthly and accumulated damage evolution with limits",
         y=0.97,
         x=0,
         xanchor="left",
-        yanchor="top"
+        yanchor="top",
     ),
-    xaxis_title="Date",
+    xaxis_title="Month",
     yaxis_title="Damage",
-    template="plotly_white", # Use a clean plot template
-    #legend=dict(orientation="v", x=1.02, y=0.95) # Position the legend
+    template="plotly_white",
     legend=dict(
         orientation="h",
         yanchor="top",
         y=1.15,
         xanchor="left",
-        x=-0.05
+        x=-0.05,
     ),
-    margin=dict(t=100)
+    margin=dict(t=100),
 )
 
-# Set y-axis to logarithmic scale for better visualization of damage values
-fig2.update_yaxes(
+fig_month_damage.update_yaxes(
     type="log",
-    tickformat=".0e", # Format y-axis ticks in scientific notation
-    tickvals=[1e+0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6],
+    tickformat=".0e",
+    tickvals=[1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6],
     range=[-6, 1],
     tickfont=dict(size=18),
     showline=True,
     linewidth=2,
-    linecolor='black'
+    linecolor="black",
 )
-
-dates = pd.date_range(start=datetime(currentYear[0]['T'].year, 1, 1), end=datetime(currentYear[0]['T'].year, 12, 1), freq='MS')
-tickvals = [calendar.month_abbr[d.to_pydatetime().month] for d in dates]
-# Format x-axis for better readability of dates
-fig2.update_xaxes(
-    tickformat="%b", # Format date display
-    tickvals=tickvals,
+fig_month_damage.update_xaxes(
     tickfont=dict(size=18),
     minor=dict(ticklen=8, tickcolor="black"),
     showline=True,
     linewidth=2,
-    linecolor='black'
+    linecolor="black",
 )
 
-# Define path and save the accumulated damage plot
-os.makedirs(output_dir+"/accumulation_plots", exist_ok=True) # Ensure the output directory exists
-fixed_date = currentDate
-json_path2 = os.path.join(output_dir+"/accumulation_plots", f'Accumulated_{fixed_date.year}.json')
-spec2 = fig_to_responsive_json(fig2)
-with open(json_path2, "w") as f:
-    json.dump(spec2, f,  default=str)
+os.makedirs(os.path.join(output_dir, "accumulation_plots"), exist_ok=True)
+json_path_month_damage = os.path.join(output_dir, "accumulation_plots", f"Accumulated_{data_year}.json")
+spec_month_damage = fig_to_responsive_json(fig_month_damage)
+with open(json_path_month_damage, "w") as f:
+    json.dump(spec_month_damage, f, default=str)
 
-print("General plot have been generated") # Final confirmation message
+monthly_cycles_current, acc_cycles_current, _ = build_monthly_series(current_year_docs, "CYCLES")
+monthly_cycles_prev, acc_cycles_prev, _ = build_monthly_series(prev_year_docs, "CYCLES")
+monthly_cycles_prevprev, acc_cycles_prevprev, _ = build_monthly_series(prevprev_year_docs, "CYCLES")
 
-if False: #Optional to generate the sn curve
-    # --- Plot 3: S-N Curve ---
-    fig3 = go.Figure() # Initialize a new Plotly figure
+hover_template_cycles_year = (
+    "%{x}<br>"
+    "%{fullData.name}: %{y:.0f}<extra></extra>"
+)
 
-    # Generate points for plotting the S-N curve smoothly
-    N_plot = np.logspace(4, 9, 500)  # Generate 500 points from 10^4 to 10^9 on a log scale
-    stress_plot = sn_curve(N_plot, a, b) # Calculate stress values using the fitted S-N curve
+fig_cycles_year = go.Figure()
 
-    # Add a line trace for the fitted S-N curve
-    fig3.add_trace(go.Scatter(
-        x=N_plot,
-        y=stress_plot,
-        mode='lines',
-        name='S-N curve',
-        line=dict(color='steelblue', width=3)
-    ))
+fig_cycles_year.add_trace(go.Bar(
+    x=month_labels,
+    y=monthly_cycles_current,
+    name=f"Monthly cycles {one_year_ago.year}",
+    marker=dict(color="steelblue"),
+    opacity=0.6,
+    hovertemplate=hover_template_cycles_year,
+))
+fig_cycles_year.add_trace(go.Scatter(
+    x=month_labels,
+    y=acc_cycles_current,
+    mode="lines+markers",
+    line=dict(color="dodgerblue", width=3),
+    marker=dict(size=6),
+    name=f"Accumulated cycles {one_year_ago.year}",
+    hovertemplate=hover_template_cycles_year,
+))
 
-    # Add a scatter trace for the original experimental data points
-    fig3.add_trace(go.Scatter(
-        x=cycles, # Original cycle data
-        y=stress, # Original stress data
-        mode='markers',
-        name='Spots', # Legend name for data points
-        marker=dict(size=8, color='darkorange')
-    ))
+fig_cycles_year.add_trace(go.Bar(
+    x=month_labels,
+    y=monthly_cycles_prev,
+    name=f"Monthly cycles {one_year_ago.year - 1}",
+    marker=dict(color="darkorange"),
+    opacity=0.3,
+    hovertemplate=hover_template_cycles_year,
+))
+fig_cycles_year.add_trace(go.Scatter(
+    x=month_labels,
+    y=acc_cycles_prev,
+    mode="lines+markers",
+    line=dict(color="orangered", width=3),
+    marker=dict(size=6),
+    name=f"Accumulated cycles {one_year_ago.year - 1}",
+    opacity=0.3,
+    hovertemplate=hover_template_cycles_year,
+))
 
-    # Update x-axis for the S-N curve plot
-    fig3.update_xaxes(
-        type='log', # Set x-axis to logarithmic scale
-        title='Cycles (N)',
-        tickformat='.1e', # Scientific notation for ticks
-        range=[4, 9],  # Set x-axis range (log10(1e4) to log10(1e9))
-        tickfont = dict(size=32)
+fig_cycles_year.add_trace(go.Bar(
+    x=month_labels,
+    y=monthly_cycles_prevprev,
+    name=f"Monthly cycles {one_year_ago.year - 2}",
+    marker=dict(color="darkgreen"),
+    opacity=0.3,
+    hovertemplate=hover_template_cycles_year,
+))
+fig_cycles_year.add_trace(go.Scatter(
+    x=month_labels,
+    y=acc_cycles_prevprev,
+    mode="lines+markers",
+    line=dict(color="springgreen", width=3),
+    marker=dict(size=6),
+    name=f"Accumulated cycles {one_year_ago.year - 2}",
+    opacity=0.3,
+    hovertemplate=hover_template_cycles_year,
+))
+
+fig_cycles_year.update_layout(
+    font=dict(size=20),
+    title=dict(
+        text="Monthly and accumulated cycles (year comparison)",
+        y=0.97,
+        x=0,
+        xanchor="left",
+        yanchor="top",
+    ),
+    xaxis_title="Month",
+    yaxis_title="Cycles",
+    template="plotly_white",
+    legend=dict(
+        orientation="h",
+        yanchor="top",
+        y=1.15,
+        xanchor="left",
+        x=-0.05,
+    ),
+    margin=dict(t=100),
+)
+
+max_cycles_val = max(
+    max_non_none(acc_cycles_current),
+    max_non_none(acc_cycles_prev),
+    max_non_none(acc_cycles_prevprev),
+)
+
+if max_cycles_val > 1:
+    max_exp = int(np.ceil(np.log10(max_cycles_val)))
+    min_exp = 0
+    tickvals_cycles = [10 ** e for e in range(min_exp, max_exp + 1)]
+    fig_cycles_year.update_yaxes(
+        type="log",
+        tickformat=".0e",
+        tickvals=tickvals_cycles,
+        range=[min_exp, max_exp],
+        tickfont=dict(size=18),
+        showline=True,
+        linewidth=2,
+        linecolor="black",
+    )
+else:
+    fig_cycles_year.update_yaxes(
+        tickfont=dict(size=18),
+        showline=True,
+        linewidth=2,
+        linecolor="black",
     )
 
-    # Update y-axis for the S-N curve plot
-    fig3.update_yaxes(
-        title='Stress (MPa)',
-        tickfont = dict(size=32)
-    )
+fig_cycles_year.update_xaxes(
+    tickfont=dict(size=18),
+    minor=dict(ticklen=8, tickcolor="black"),
+    showline=True,
+    linewidth=2,
+    linecolor="black",
+)
 
-    # Update layout for the S-N curve plot
-    fig3.update_layout(
-        font=dict(size=28),
-        title='S-N Curve',
-        template='plotly_white'
-    )
+os.makedirs(os.path.join(output_dir, "cycles_plots"), exist_ok=True)
+json_path_cycles_year = os.path.join(output_dir, "cycles_plots", f"Cycles_{data_year}.json")
+spec_cycles_year = fig_to_responsive_json(fig_cycles_year)
+with open(json_path_cycles_year, "w") as f:
+    json.dump(spec_cycles_year, f, default=str)
 
-    # Define path and save the S-N curve plot
-    png_path3 = os.path.join(output_dir, f'S-N_Curve_{yesterday.year}-{yesterday.month}.png')
-    fig3.write_image(png_path3, width=1920, height=1080, scale=1)
+print("Yearly plots (damage and cycles) have been generated.")
