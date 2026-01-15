@@ -207,7 +207,7 @@ def detect_abrupt_movements(values):
             and current_value["ZA"] > start_down_value["ZA"]
             and current_value["ZA"] - start_up_candidate["ZA"] < -0.25
         ):
-            # Confirmed upward trend start after a downward phase → complete cycle
+            # Confirmed upward trend start after a downward phase = complete cycle
             start_up_value = start_up_candidate
             abrupt_movements.append(
                 {
@@ -270,7 +270,7 @@ def detect_abrupt_movements(values):
             }
         )
 
-    # Ensure the largest daily fluctuation (deepest↔highest) is included
+    # Ensure the largest daily fluctuation (deepest to highest) is included
     if highest_point and deepest_point:
         largest = {
             "start_value": deepest_point,
@@ -288,13 +288,13 @@ def compute_daily_damage(values, conversion_df):
     """
     Compute Miner's rule damage for a single day:
     - Detect abrupt movements (cycles) in ZA
-    - Convert ZA amplitudes to stress amplitudes via conversion_df (deg→MPa)
+    - Convert ZA amplitudes to stress amplitudes via conversion_df (deg=MPa)
     - Group by stress amplitude and apply S-N curve for Miner's rule
     Returns:
         accumulated_damage_today (float)
     """
     abrupt_movements = detect_abrupt_movements(values)
-    grouped_values = {}  # stress amplitude (as string) → number of cycles
+    grouped_values = {}  # stress amplitude (as string) number of cycles
 
     # Convert each movement into stress amplitude and count occurrences
     for element in abrupt_movements:
@@ -349,7 +349,7 @@ today = date
 yesterday = today - relativedelta(months=1) + relativedelta(day=1)
 
 # Base output directory for all plots (same path as before)
-output_dir = r"/run/media/antonio/DD_Antonio4/github/SUMON-Repo/html/contents"
+output_dir = r"/opt/lst-drive/src/SUMON/html/contents"
 
 # ---------------------------------------------------------------------------
 #  Initialization for the main loop
@@ -398,7 +398,7 @@ while currentDate.date() <= today.date():
         # Fetch daily ZA data
         values = MongoDB.getDailyZenith(MongoDB, T_min, T_max)
 
-        # Load deg→MPa conversion (kept inside loop to preserve original behavior)
+        # Load deg=MPa conversion (kept inside loop to preserve original behavior)
         conversion = pd.read_csv("./deg_to_stress.csv")
 
         # Compute damage for this day using the same logic as before
@@ -423,7 +423,7 @@ while currentDate.date() <= today.date():
                 )
 
     # -----------------------------------------------------------------------
-    # Monthly boundary or last day → projection plot
+    # Monthly boundary or last day = projection plot
     # -----------------------------------------------------------------------
     if currentDate.month != currentMonth or currentDate.date() == today.date():
         currentMonth = currentDate.month
@@ -555,7 +555,7 @@ while currentDate.date() <= today.date():
         os.chmod(json_path4, 0o644)
 
     # -----------------------------------------------------------------------
-    # Last day of range → monthly damage + cycles comparison plots
+    # Last day of range = monthly damage + cycles comparison plots
     # -----------------------------------------------------------------------
     if currentDate.date() == today.date():
         # ------------ Damage values for 3 years ------------

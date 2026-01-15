@@ -25,7 +25,7 @@ data_year = one_year_ago.year
 
 fixed_start = datetime(2018, 1, 1)
 
-output_dir = "/run/media/antonio/DD_Antonio4/github/SUMON-Repo/html/contents"
+output_dir = "/opt/lst-drive/src/SUMON/html/contents"
 
 stress_points = np.array([292, 136, 63, 50, 37, 32, 20])
 cycles_points = np.array([1e4, 1e5, 1e6, 2e6, 5e6, 1e7, 1e8])
