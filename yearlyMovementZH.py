@@ -25,7 +25,7 @@ data_year = one_year_ago.year
 
 fixed_start = datetime(2018, 1, 1)
 
-output_dir = "D:/github/SUMON-Repo/html/contents"
+output_dir = "/run/media/antonio/DD_Antonio4/github/SUMON-Repo/html/contents"
 
 stress_points = np.array([292, 136, 63, 50, 37, 32, 20])
 cycles_points = np.array([1e4, 1e5, 1e6, 2e6, 5e6, 1e7, 1e8])
@@ -307,6 +307,8 @@ json_path_proj = os.path.join(output_dir, "projection_plots", f"Projection_{data
 spec_proj = fig_to_responsive_json(fig_year_projection)
 with open(json_path_proj, "w") as f:
     json.dump(spec_proj, f, default=str)
+    
+os.chmod(json_path_proj, 0o644)
 
 current_year_docs = MongoDB.getDamageValues(MongoDB, one_year_ago, today)
 prev_year_docs = MongoDB.getDamageValues(
@@ -525,6 +527,8 @@ json_path_month_damage = os.path.join(output_dir, "accumulation_plots", f"Accumu
 spec_month_damage = fig_to_responsive_json(fig_month_damage)
 with open(json_path_month_damage, "w") as f:
     json.dump(spec_month_damage, f, default=str)
+    
+os.chmod(json_path_month_damage, 0o644)
 
 monthly_cycles_current, acc_cycles_current, _ = build_monthly_series(current_year_docs, "CYCLES")
 monthly_cycles_prev, acc_cycles_prev, _ = build_monthly_series(prev_year_docs, "CYCLES")
@@ -656,5 +660,7 @@ json_path_cycles_year = os.path.join(output_dir, "cycles_plots", f"Cycles_{data_
 spec_cycles_year = fig_to_responsive_json(fig_cycles_year)
 with open(json_path_cycles_year, "w") as f:
     json.dump(spec_cycles_year, f, default=str)
+
+os.chmod(json_path_cycles_year, 0o644)
 
 print("Yearly plots (damage and cycles) have been generated.")

@@ -349,7 +349,7 @@ today = date
 yesterday = today - relativedelta(months=1) + relativedelta(day=1)
 
 # Base output directory for all plots (same path as before)
-output_dir = r"D:\github\SUMON-Repo\html\contents"
+output_dir = r"/run/media/antonio/DD_Antonio4/github/SUMON-Repo/html/contents"
 
 # ---------------------------------------------------------------------------
 #  Initialization for the main loop
@@ -551,6 +551,8 @@ while currentDate.date() <= today.date():
         spec4 = fig_to_responsive_json(fig4)
         with open(json_path4, "w") as f:
             json.dump(spec4, f, default=str)
+        
+        os.chmod(json_path4, 0o644)
 
     # -----------------------------------------------------------------------
     # Last day of range → monthly damage + cycles comparison plots
@@ -983,7 +985,9 @@ while currentDate.date() <= today.date():
         spec2 = fig_to_responsive_json(fig2)
         with open(json_path2, "w") as f:
             json.dump(spec2, f, default=str)
-
+        
+        os.chmod(json_path2, 0o644)
+    
         os.makedirs(os.path.join(output_dir, "cycles_plots"), exist_ok=True)
         json_path_cycles = os.path.join(
             output_dir,
@@ -993,6 +997,8 @@ while currentDate.date() <= today.date():
         spec_cycles = fig_to_responsive_json(fig_cycles)
         with open(json_path_cycles, "w") as f:
             json.dump(spec_cycles, f, default=str)
+        
+        os.chmod(json_path_cycles, 0o644)
 
         print("General monthly plots have been generated")
 

@@ -6,18 +6,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
-
+  
   for (let year = currentYear; year >= startYear; year--) {
     const option = document.createElement("option");
     option.value = year;
     option.textContent = year;
     yearPicker.appendChild(option);
   }
-
+  
   let monthPicker = document.getElementById("month");
-
+  
   const currentOption = Array.from(monthPicker.options).find((opt) =>
-    opt.value.endsWith(currentMonth - 1)
+    opt.value.endsWith(currentMonth)
   );
   if (currentOption) {
     monthPicker.value = currentOption.value;
@@ -82,6 +82,35 @@ async function renderPlot(div, url, type, year = false) {
       if (!r.ok) throw new Error(`Not found: (${r.status})`);
       return r.json();
     });
+    if(screen.width <= 500){
+      console.log(spec.data)
+      for (let i = 0; i < spec.data.length; i++) {
+        const element = spec.data[i];
+        if ("textfont" in element){
+          console.log(element)
+          element.textfont.size = 10
+        }
+      }
+      spec.layout.font.size = 12
+      spec.layout.xaxis.tickfont.size = 10
+      spec.layout.yaxis.tickfont.size = 10
+      spec.layout.margin = {
+        l: 55,
+        r: 5,
+        t: 150,
+        b: 50,
+      }
+      spec.layout.title.y = 1
+      spec.layout.legend = {
+        ...(spec.layout.legend || {}),
+        orientation: 'v',
+        x: 0,
+        xanchor: 'left',
+        y: 1,
+        yanchor: 'bottom',
+        font: { size: 10 },
+      }
+    }
     await Plotly.newPlot(div, spec.data || [], spec.layout || {}, spec.config || {});
   } catch (e) {
     div.style = "";
