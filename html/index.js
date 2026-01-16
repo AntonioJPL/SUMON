@@ -1,6 +1,7 @@
 const today = new Date();
 
 document.addEventListener("DOMContentLoaded", () => {
+
   let yearPicker = document.getElementById("year");
   const startYear = 2022;
   const currentDate = new Date();
@@ -26,7 +27,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchButton = document.getElementById("searchBtn");
   searchButton.addEventListener("click", (e) => {
     e.preventDefault();
+    generatePlots()
+    
+  });
 
+  let fullDate = monthPicker.value + "-" + yearPicker.value;
+  const [d, m, y] = fullDate.split("-").map(Number);
+  const next = new Date(y, m, 1);
+
+  if (next.getMonth() === 0) {
+    const formattedDate = `${next.getFullYear() - 1}-12`;
+    generateMonthPlot(formattedDate);
+    generateYearPlot(formattedDate);
+  } else {
+    const formattedDate = `${next.getFullYear()}-${next.getMonth()}`;
+    const formattedYear = `${next.getFullYear() - 1}-${next.getMonth()}`;
+    generateMonthPlot(formattedDate);
+    generateYearPlot(formattedYear);
+  }
+
+  function generatePlots() {
     let fullDate = monthPicker.value + "-" + yearPicker.value;
     const [d, m, y] = fullDate.split("-").map(Number);
     const next = new Date(y, m, 1);
@@ -53,22 +73,11 @@ document.addEventListener("DOMContentLoaded", () => {
         generateYearPlot(formattedDate);
       }
     }
-  });
-
-  let fullDate = monthPicker.value + "-" + yearPicker.value;
-  const [d, m, y] = fullDate.split("-").map(Number);
-  const next = new Date(y, m, 1);
-
-  if (next.getMonth() === 0) {
-    const formattedDate = `${next.getFullYear() - 1}-12`;
-    generateMonthPlot(formattedDate);
-    generateYearPlot(formattedDate);
-  } else {
-    const formattedDate = `${next.getFullYear()}-${next.getMonth()}`;
-    const formattedYear = `${next.getFullYear() - 1}-${next.getMonth()}`;
-    generateMonthPlot(formattedDate);
-    generateYearPlot(formattedYear);
   }
+
+  window.addEventListener("resize", () => {
+    generatePlots()
+  })
 });
 
 const BASE = "./contents";
@@ -83,7 +92,6 @@ async function renderPlot(div, url, type, year = false) {
       return r.json();
     });
     if(screen.width <= 500){
-      console.log(spec.data)
       for (let i = 0; i < spec.data.length; i++) {
         const element = spec.data[i];
         if ("textfont" in element){
@@ -110,7 +118,35 @@ async function renderPlot(div, url, type, year = false) {
         yanchor: 'bottom',
         font: { size: 10 },
       }
+    }else if (screen.width <= 1024){
+      for (let i = 0; i < spec.data.length; i++) {
+        const element = spec.data[i];
+        if ("textfont" in element){
+          console.log(element)
+          element.textfont.size = 12
+        }
+      }
+      spec.layout.font.size = 16
+      spec.layout.xaxis.tickfont.size = 12
+      spec.layout.yaxis.tickfont.size = 12
+      spec.layout.margin = {
+        l: 55,
+        r: 5,
+        t: 150,
+        b: 50,
+      }
+      spec.layout.title.y = 1
+      spec.layout.legend = {
+        ...(spec.layout.legend || {}),
+        orientation: 'v',
+        x: 0.7,
+        xanchor: 'left',
+        y: 1.05,
+        yanchor: 'bottom',
+        font: { size: 12 },
+      }
     }
+    console.log(spec.config)
     await Plotly.newPlot(div, spec.data || [], spec.layout || {}, spec.config || {});
   } catch (e) {
     div.style = "";
@@ -140,7 +176,6 @@ const generateMonthPlot = async (fullMonth) => {
 
   damageDiv.innerHTML = "";
   Object.assign(damageDiv.style, {
-    minHeight: "520px",
     padding: "1rem",
     border: "1px solid #eee",
     borderRadius: "10px",
@@ -152,7 +187,6 @@ const generateMonthPlot = async (fullMonth) => {
 
   cyclesDiv.innerHTML = "";
   Object.assign(cyclesDiv.style, {
-    minHeight: "520px",
     padding: "1rem",
     border: "1px solid #eee",
     borderRadius: "10px",
@@ -210,8 +244,7 @@ const generateYearPlot = async (fullYear) => {
   // Same styling for all yearly cards
   [damageDiv, projectionDiv, cyclesDiv].forEach((d) =>
     Object.assign(d.style, {
-      minHeight: "520px",
-      padding: "1rem",
+      padding: "1rem",  
       border: "1px solid #eee",
       borderRadius: "10px",
     })
@@ -219,7 +252,7 @@ const generateYearPlot = async (fullYear) => {
 
   // Append in VERTICAL ORDER
   host.appendChild(damageDiv);     // yearly damage
-  host.appendChild(cyclesDiv);     // *** yearly cycles (new) ***
+  host.appendChild(cyclesDiv);     // yearly cycles
   host.appendChild(projectionDiv); // yearly projection
 
   const yearOnly = fullYear.split("-")[0];
@@ -240,8 +273,9 @@ const generateYearPlot = async (fullYear) => {
   // Yearly projection
   await renderPlot(projectionDiv, projectionURL, "projection", true);
 
-  // NEW: Yearly cycles (same behavior as monthly cycles)
+  // Yearly cycles
   await renderPlot(cyclesDiv, cyclesURL, "cycles", true);
 
   loader.classList.add("hidden");
+
 };

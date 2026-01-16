@@ -96,7 +96,36 @@ body{
     .contentHeader p{
         font-size: 0.9rem;
     }
-    .plotly-container .modebar-btn {
+    .modebar-btn {
+        padding: 3px !important;
+    }
+    .modebar-btn svg {
+        width: 14px !important;
+        height: 14px !important;
+    }
+    .modebar-container{
+        bottom: 6px;
+        top: unset !important;
+    }
+}
+
+@media (width > 500px) and (width <= 1024px) {
+    .mainHeader{
+        justify-content: end;
+    }
+    h2.title{
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+    }
+    .container{
+        left: 0.5rem;
+        top: 0.1rem;
+        width: 7rem;
+    }
+    .contentHeader p{
+        font-size: 0.9rem;
+    }
+    .modebar-btn {
         padding: 3px !important;
     }
     .modebar-btn svg {
